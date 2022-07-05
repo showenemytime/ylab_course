@@ -1,5 +1,11 @@
 import random
 
+
+# В версии 1.1 добавлена проверка для робота. Если ранее робот проигрывал как только соберёт 5 в ряд при рандомном выборе
+# то сейчас выбор всё также рандомный, но у компьютера есть право на ошибку. А именно, чтобы компьютер проиграл, нужно
+# 5 раз за ход выбрать не правильную клетку из-за которой наступит проигрыш. При том, если пк выбирает клетку, но счётчик
+# меньше 5, тогда клетка возращает свою цифру, а пк выбирает другую клетку.
+
 # генерация матрицы поля боя. 10х10
 battle_ground = [[i for i in range(1, 11)],
                  [i for i in range(11, 21)],
@@ -56,7 +62,11 @@ def player_turn():
 
 # логика для хода компьютера
 def computer_turn():
+     # Счётчик ошибок, если пк ошибётся 5 раз за ход, то проиграет.
+    count_computer_error = 0
+
     while True:
+
         choice = random.randint(1, 100)  # генерируем число
 
         if choice == 100:  # сразу проверяем, если число 100, занята ли ячейка, если нет, то занимаем сами
@@ -72,10 +82,19 @@ def computer_turn():
         else:  # ищем ячейку и ставим свой знак.
             if choice % 10 == 0:
                 battle_ground[choice // 10 - 1][choice % 10 - 1] = 'O'
+                if is_defeat() and count_computer_error < 5:  # проверка на 5 ошибок пк подряд
+
+                    battle_ground[choice // 10 - 1][choice % 10 - 1] = choice
+                    count_computer_error += 1
+                    continue
                 print('COMPUTER choose point: ', choice)
             else:
                 battle_ground[choice // 10][choice % 10 - 1] = 'O'
                 print('COMPUTER choose point: ', choice)
+                if is_defeat() and count_computer_error < 5:  # проверка на 5 ошибок пк подряд
+                    battle_ground[choice // 10][choice % 10 - 1] = choice
+                    count_computer_error += 1
+                    continue
             break
 
 
@@ -171,6 +190,7 @@ def draw():
 
 # запускаем основную функцию
 def main():
+
     while True:
         draw_ground()
         player_turn()
