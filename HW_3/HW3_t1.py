@@ -1,8 +1,9 @@
-# Проверка, было ли ранее вычисление с конкретным числом, если да, то берём ответ из cache_dict, иначе вычисляем.
+
 from typing import Callable
 
 
 def cache(func) -> Callable[[int], int]:
+    # Проверка, было ли ранее вычисление с конкретным числом, если да, то берём ответ из cache_dict, иначе вычисляем.
     cache_dict = {}
 
     def wrapper(num: int) -> int:
