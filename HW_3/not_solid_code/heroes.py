@@ -1,58 +1,49 @@
 from antagonistfinder import AntagonistFinder
+from weapon import Gun, Lasers, MeleeWeapon
 
 
+#  Родительский класс супергероя.
 class SuperHero:
 
-    def __init__(self, name, can_use_ultimate_attack=True):
+    def __init__(self, name, can_use_ultimate_attack=False):
         self.name = name
         self.can_use_ultimate_attack = can_use_ultimate_attack
         self.finder = AntagonistFinder()
 
     def find(self, place):
+        # Функция для поиска Антогониста на конкретной локации.
         self.finder.get_antagonist(place)
 
-    # Проблема: Герой не должен заниматься оповещениями о своей победе, это задача масс-медиа.
-    # Несоблюден: Принцип единой ответственности.
-    # По SOLID: Вынести оповещение в отдельный класс, занимающийся выводом информации.
-    # Когда возникнут трудности? Добавьте оповещение о победе героя через газеты или через TV (на выбор)
-    # а также попробуйте оповестить планеты (у которых вместа атрибута name:str используется coordinates:List[float]).
-    def create_news(self, place):
-        place_name = getattr(place, 'name', 'place')
-        print(f'{self.name} saved the {place_name}!')
-
-    # Проблема: Для каждого супергероя реализованы все методы обращения с оружием.
-    # Несоблюден: Принцип разделения интерфейса
-    # По SOLID: Создать классы-миксины для каждого оружия
-    # Когда возникнут трудности? Попробуйте запретить Чаку норрису пользоваться лазерами из глаз!
-    def fire_a_gun(self):
-        print('PIU PIU')
-
-    def incinerate_with_lasers(self):
-        print('Wzzzuuuup!')
-
-    def roundhouse_kick(self):
-        print('Bump')
-
     def attack(self):
-        self.fire_a_gun()
+        # Функция Атаки, в зависимости от доступных классов из Weapon.
+        pass
 
-    # Проблема: У разных супергероев разные суперспособности
-    # Несоблюден: Принцип открытости/закрытости
-    # По SOLID: Каждого супергероя реализовать как наследника SuperHero и вместо изменения базового класса переопределять нужные методы
-    # Когда возникнут трудности? Когда в вашем коде поселится вся команда Мстителей
     def ultimate(self):
-        if self.name == 'Clark Kent':
-            self.incinerate_with_lasers()
+        # Функция Ультимативной способности, если она есть у Супергероя.
+        pass
 
 
-class Superman(SuperHero):
+# Создаём отдельный класс Супергероя Человека, кем и является Чак Норрис. Наследуемся от оружия, которым владеет Чак
+class Human(SuperHero, Gun, MeleeWeapon):
+
+    def __init__(self, name):
+        super(Human, self).__init__(name, False)
+
+    def attack(self, use_weapon=True):
+
+        if use_weapon:
+            self.fire_a_gun()
+        else:
+            self.roundhouse_kick()
+
+# Создаём Супергероя - Супермена. Он не умеет стрелять из пистолета, зато умеет в лазеры.
+class Superman(SuperHero, Lasers, MeleeWeapon):
 
     def __init__(self):
-        super(Superman, self).__init__('Clark Kent', True)
+        super(Superman, self).__init__(name='Кларк Кент', can_use_ultimate_attack=True)
 
-    # Проблема: Сигнатура метода изменилась. Если мэр города обратится к супермену как к супергерою у Кларка возникнут проблемы с атакой
-    # Несоблюден: Принцип подстановки Барбары Лисков
-    # По SOLID: Не допускать таких вольностей
-    # Когда возникнут трудности? При первой же битве
+    def ultimate(self):
+        self.incinerate_with_lasers()
+
     def attack(self):
-        return 'Kick'
+        self.roundhouse_kick()
