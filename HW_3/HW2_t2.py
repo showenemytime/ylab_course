@@ -1,26 +1,32 @@
-from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import List, Tuple
+from dataclasses import dataclass
+from typing import Generator, List, Tuple
 
 
+"""
+Класс для парсинга сеансов фильма из List[Tuple[datetime, datetime]] 
+и вывода всех дат, в которые фильм будет в кинотеатре, построчно.
+"""
 @dataclass
 class Movie:
     title: str
     dates: List[Tuple[datetime, datetime]]
 
-    def schedule(self) -> List[List[datetime]]:
-        # Функция для расспаковки экземляра Movie и вывод дат показа через генератор.
-        dates: List[Tuple[datetime, datetime]] = self.dates
+    def schedule(self) -> Generator[datetime, None, None]:
+        # Функция пройдёт по всем датам и вернёт генератор, по которому в последствии пройдёмся для вывода дат.
+        for i in range(len(self.dates)):
 
-        return [[date1 + timedelta(i) for i in range((date2 - date1).days + 1)] for date1, date2 in dates]
+            start = self.dates[i][0]
+            end = self.dates[i][1]
+            while start <= end:
+                yield start
+                start += timedelta(days=1)
 
-
-#  Экземпляр класса Movie.
-m = Movie('sw', [
-  (datetime(2020, 1, 1), datetime(2020, 1, 7)),
-  (datetime(2020, 1, 15), datetime(2020, 2, 7))
-])
 
 if __name__ == "__main__":
-    for date in m.schedule():
-        print(*date, sep='\n')
+    m = Movie('sw', [
+      (datetime(2020, 1, 1), datetime(2020, 1, 7)),
+      (datetime(2020, 1, 15), datetime(2020, 2, 7))
+    ])
+
+    print(*m.schedule(), sep='\n')

@@ -10,20 +10,19 @@ from typing import Callable, Any
 '''
 
 
-def repeat_func(call_count=3, start_sleep_time=1, factor=2, border_sleep_time=15) -> \
+def repeat_func(call_count=4, start_sleep_time=1, factor=2, border_sleep_time=20) -> \
         Callable[[Any], Callable[[], None]]:
-    t = start_sleep_time
+    start_time: int = start_sleep_time
 
     def decorator(func):
         def wrapper() -> None:
-            sleep_time: int = t
+            sleep_time: int = start_time
             print(f'Количество запусков: {call_count}')
             print(f'Начало работы.\n')
             call_count_counter: int = 1  # Счётчик повторений цикла.
 
             #  Цикл, в котором увеличиваем задержку по формуле.
             while sleep_time <= border_sleep_time and call_count >= call_count_counter:
-                time.sleep(sleep_time)
 
                 # Условия для выбора окончания в слове "секудна".
                 if sleep_time == 1:
@@ -33,12 +32,14 @@ def repeat_func(call_count=3, start_sleep_time=1, factor=2, border_sleep_time=15
                 else:
                     sec: str = 'секунд'
 
-                print(f'Запуск номер {call_count_counter}. Ожидание: {sleep_time} {sec}. Результат = {func()}')
-                call_count_counter += 1
                 if sleep_time < border_sleep_time:
-                    sleep_time = sleep_time * 2 ** factor
+                    sleep_time = start_time * factor ** (call_count_counter - 1)
                 if sleep_time > border_sleep_time:
                     sleep_time = border_sleep_time
+
+                time.sleep(sleep_time)
+                print(f'Запуск номер {call_count_counter}. Ожидание: {sleep_time} {sec}. Результат = {func()}')
+                call_count_counter += 1
             return None
 
         return wrapper
@@ -46,7 +47,7 @@ def repeat_func(call_count=3, start_sleep_time=1, factor=2, border_sleep_time=15
     return decorator
 
 
-@repeat_func(call_count=4)
+@repeat_func(call_count=5)
 def func_result() -> str:
     txt: str = 'Я внешняя функция и до сих пор работаю.'
     return txt
